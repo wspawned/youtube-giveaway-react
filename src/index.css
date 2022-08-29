@@ -4,3 +4,40 @@
   box-sizing: border-box;
 }
 
+.app-header {
+  width: 40%;
+  height: 2em;
+  line-height: 2em;
+  position: relative;
+  margin: auto;
+  font-size: 2em;
+  text-align: center;
+  font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+  color: aliceblue;
+  background-color:blueviolet;
+  border-radius: .7em;
+}
+
+.conditions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  width: 50%;
+  margin: auto;
+  padding: 1em;
+}
+
+label {
+  display: block;
+  
+  margin: 1em;
+}
+
+input {
+  display: block;
+  width: 100%;
+}
+
+.keywords {
+}
