@@ -11,9 +11,27 @@ const App = () => {
   const [winnerAmount,setWinnerAmount] = useState("");
   const [reserveWinnerAmount,setReserveWinnerAmount] =useState("");
   const [competitors,setCompetitors] = useState([]);
-  
+
+  const rollDice = (list) => {
+    const winnerIndex = Math.floor(Math.random()* list.length);
+    const winnerId = list[winnerIndex];
+    const remainedList = list.filter(id => id!== winnerId );
+    console.log("winner > " + winnerId )
+
+    return remainedList;
+  }
+
+  const chooseWinners = (competitors) => {
+    // let usersNoCondition = competitors.slice().map( comment => comment.uid );
+    let usersNoCondition = competitors.slice().map( comment => comment.uid );
+    for(let i=1; i<=(+winnerAmount); i++) {
+      usersNoCondition = rollDice(usersNoCondition);
+      console.log(" remained list > " + usersNoCondition + usersNoCondition.length);
+    };
+  }
+
   const chooseCompetitors = (all) => {
-    const competitors = (keywords.length)
+    const competitorsAll = (keywords.length)
       ? all.filter((item) => {
           return keywords
             .toLowerCase()
@@ -23,7 +41,8 @@ const App = () => {
             });
         })
       : all.slice();
-      setCompetitors(competitors);
+      setCompetitors(competitorsAll);
+      chooseWinners(competitorsAll);
     };
   
   async function apiCall() {
@@ -100,7 +119,7 @@ const App = () => {
 
             <label>
               Reserve Winners
-              <input type={"number"} min="1" step="1"
+              <input type={"number"} min={winnerAmount} step="1"
               value={reserveWinnerAmount}
               onChange= { (e) => {
                 setReserveWinnerAmount(e.target.value);
@@ -132,6 +151,10 @@ const App = () => {
 
         <div className="rules">
           <p> Rules of contest </p>
+          <ul>
+            <li>reserve winner amount can't be lower than winner amount</li>
+            <li>something to do later</li>
+          </ul>
 
           <div className="buttons">
             <button> accept repetitive comments as one </button>
