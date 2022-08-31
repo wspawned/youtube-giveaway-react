@@ -12,12 +12,18 @@ const App = () => {
   const [reserveWinnerAmount,setReserveWinnerAmount] =useState("");
   
   const computeWinners = (all) => {
-    
-    const competants = (keywords) ? all.filter(
-      (item) =>  keywords.every( (keyword) =>   item.text.includes(keyword)  )
-    ) : all.slice();
+    const competants = keywords
+      ? all.filter((item) => {
+          return keywords
+            .toLowerCase()
+            .split(" ")
+            .every((keyword) => {
+              return item.text.toLowerCase().includes(keyword);
+            });
+        })
+      : all.slice();
     console.log(competants);
-  }
+  };
   
   async function apiCall() {
     const res = await fetch(`${API_URL}&videoId=${videoID}&key=${API_KEY}`);
@@ -109,10 +115,11 @@ const App = () => {
               type={"search"}
               value={keywords}
               placeholder="use space btw keywords"
-              onChange={(e) => {
-                const words = e.target.value.toLowerCase().split(" ");
-                setKeywords(words);
-              }}
+              onChange={
+                (e) => {
+                setKeywords(e.target.value);
+              }
+            }
             ></input>
           </label>
 
