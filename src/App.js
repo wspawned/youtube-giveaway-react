@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const API_KEY = "*****";
+const API_KEY = "***";
 const API_URL = "https://youtube.googleapis.com/youtube/v3/commentThreads?part=snippet";
 
 const App = () => {
@@ -10,9 +10,10 @@ const App = () => {
   const [videoID,setVideoID] = useState("");
   const [winnerAmount,setWinnerAmount] = useState("");
   const [reserveWinnerAmount,setReserveWinnerAmount] =useState("");
+  const [competitors,setCompetitors] = useState([]);
   
-  const computeWinners = (all) => {
-    const competants = keywords
+  const chooseCompetitors = (all) => {
+    const competitors = (keywords.length)
       ? all.filter((item) => {
           return keywords
             .toLowerCase()
@@ -22,8 +23,8 @@ const App = () => {
             });
         })
       : all.slice();
-    console.log(competants);
-  };
+      setCompetitors(competitors);
+    };
   
   async function apiCall() {
     const res = await fetch(`${API_URL}&videoId=${videoID}&key=${API_KEY}`);
@@ -41,7 +42,7 @@ const App = () => {
       )
     });
 
-    computeWinners(allComments);
+    chooseCompetitors(allComments);
   };
 
   return (
