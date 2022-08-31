@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const API_KEY = "*******************************";
+const API_KEY = "*****";
 const API_URL = "https://youtube.googleapis.com/youtube/v3/commentThreads?part=snippet";
 
 const App = () => {
@@ -10,12 +10,33 @@ const App = () => {
   const [videoID,setVideoID] = useState("");
   const [winnerAmount,setWinnerAmount] = useState("");
   const [reserveWinnerAmount,setReserveWinnerAmount] =useState("");
-
+  
+  const computeWinners = (all) => {
+    
+    const competants = (keywords) ? all.filter(
+      (item) =>  keywords.every( (keyword) =>   item.text.includes(keyword)  )
+    ) : all.slice();
+    console.log(competants);
+  }
+  
   async function apiCall() {
     const res = await fetch(`${API_URL}&videoId=${videoID}&key=${API_KEY}`);
     const json = await res.json();
-    console.log(json);
-  }
+    const comments = json.items.slice();
+    const allComments = [];
+    comments.forEach( (comment) => {
+      const userId = comment.snippet.topLevelComment.snippet.authorChannelId.value;
+      const userName = comment.snippet.topLevelComment.snippet.authorDisplayName;
+      const userImage = comment.snippet.topLevelComment.snippet.authorProfileImageUrl;
+      const text = comment.snippet.topLevelComment.snippet.textDisplay;
+
+      return(
+        allComments.push( {uid:userId, name:userName, avatar:userImage, text:text } )
+      )
+    });
+
+    computeWinners(allComments);
+  };
 
   return (
     <div className="app">
