@@ -11,23 +11,40 @@ const App = () => {
   const [winnerAmount,setWinnerAmount] = useState("");
   const [reserveWinnerAmount,setReserveWinnerAmount] =useState("");
   const [competitors,setCompetitors] = useState([]);
+  const [winners, setWinners] = useState([]);
+  const [reserveWinners, setReserveWinners] = useState([]);
 
   const rollDice = (list) => {
     const winnerIndex = Math.floor(Math.random()* list.length);
     const winnerId = list[winnerIndex];
     const remainedList = list.filter(id => id!== winnerId );
-    console.log("winner > " + winnerId )
 
-    return remainedList;
+    return { winID:winnerId, currList:remainedList};
   }
 
   const chooseWinners = (competitors) => {
     // let usersNoCondition = competitors.slice().map( comment => comment.uid );
+    const winners = [];
+    const reserves = [];
     let usersNoCondition = competitors.slice().map( comment => comment.uid );
     for(let i=1; i<=(+winnerAmount); i++) {
-      usersNoCondition = rollDice(usersNoCondition);
-      console.log(" remained list > " + usersNoCondition + usersNoCondition.length);
+      const current = rollDice(usersNoCondition);
+      usersNoCondition = current.currList;
+      winners.push(current.winID);
+      
     };
+    for(let i=1; i<=(+reserveWinnerAmount); i++) {
+      const current = rollDice(usersNoCondition);
+      usersNoCondition = current.currList;
+      reserves.push(current.winID);
+    };
+    // console.log("winners > " + winners + " reserves > " + reserves + " remained list > " + usersNoCondition + usersNoCondition.length);
+    const winnersNames = [];
+    const reservesNames = [];
+    winners.forEach(id => {  winnersNames.push(competitors.find(item => item.uid === id).name) } );
+    reserves.forEach(id => {  reservesNames.push(competitors.find(item => item.uid === id).name) } );
+    setWinners(winnersNames);
+    setReserveWinners(reservesNames);
   }
 
   const chooseCompetitors = (all) => {
@@ -160,6 +177,11 @@ const App = () => {
             <button> accept repetitive comments as one </button>
             <button> accept comments of same user as one  </button>
           </div>
+        </div>
+
+        <div className="results">
+          <p> Winners: {winners} </p>
+          <p> Reserve Winners: {reserveWinners} </p>
         </div>
 
       </div>
