@@ -39,12 +39,12 @@ const App = () => {
       reserves.push(current.winID);
     };
     // console.log("winners > " + winners + " reserves > " + reserves + " remained list > " + usersNoCondition + usersNoCondition.length);
-    const winnersNames = [];
-    const reservesNames = [];
-    winners.forEach(id => {  winnersNames.push(competitors.find(item => item.uid === id).name) } );
-    reserves.forEach(id => {  reservesNames.push(competitors.find(item => item.uid === id).name) } );
-    setWinners(winnersNames);
-    setReserveWinners(reservesNames);
+    const winnersInfo = [];
+    const reservesInfo = [];
+    winners.forEach(id => {  winnersInfo.push(competitors.find(item => item.uid === id)) } );
+    reserves.forEach(id => {  reservesInfo.push(competitors.find(item => item.uid === id)) } );
+    setWinners(winnersInfo);
+    setReserveWinners(reservesInfo);
   }
 
   const chooseCompetitors = (all) => {
@@ -71,10 +71,11 @@ const App = () => {
       const userId = comment.snippet.topLevelComment.snippet.authorChannelId.value;
       const userName = comment.snippet.topLevelComment.snippet.authorDisplayName;
       const userImage = comment.snippet.topLevelComment.snippet.authorProfileImageUrl;
+      const userUrl = comment.snippet.topLevelComment.snippet.authorChannelUrl
       const text = comment.snippet.topLevelComment.snippet.textDisplay;
 
       return(
-        allComments.push( {uid:userId, name:userName, avatar:userImage, text:text } )
+        allComments.push( {uid:userId, name:userName, avatar:userImage, text:text, url:userUrl } )
       )
     });
 
@@ -180,8 +181,36 @@ const App = () => {
         </div>
 
         <div className="results">
-          <p> Winners: {winners} </p>
-          <p> Reserve Winners: {reserveWinners} </p>
+          { winners.map( (winner, order) => {
+            const rank = order+1;
+            const name = winner.name;
+            const avatar = winner.avatar;
+            const url = winner.url;
+
+            return (
+              <div  className="winners">
+                <h2>WINNER #{rank} </h2>
+                <img
+                src={avatar} alt="user-avatar"></img>
+                <a href={url} > {` ${name} `} </a>
+              </div>
+            )
+          })}
+          { reserveWinners.map( (winner, order) => {
+            const rank = order+1;
+            const name = winner.name;
+            const avatar = winner.avatar;
+            const url = winner.url;
+
+            return (
+              <div  className="reserve-winners">
+                <h2>RESERVE WINNER #{rank} </h2>
+                <img
+                src={avatar} alt="user-avatar"></img>
+                <a href={url} > {` ${name} `} </a>
+              </div>
+            )
+          })}
         </div>
 
       </div>
