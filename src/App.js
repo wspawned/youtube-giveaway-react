@@ -13,6 +13,7 @@ const App = () => {
   const [competitors,setCompetitors] = useState([]);
   const [winners, setWinners] = useState([]);
   const [reserveWinners, setReserveWinners] = useState([]);
+  const [userCondition, setUserCondition] = useState(false);
 
   const rollDice = (list) => {
     const winnerIndex = Math.floor(Math.random()* list.length);
@@ -22,11 +23,28 @@ const App = () => {
     return { winID:winnerId, currList:remainedList};
   }
 
+  const chooseWithUserCondition = (competitors) => {
+    const userSet = new Set(
+      competitors.slice().map(info => info.uid)
+    );
+    const uniqueUsers = Array.from(userSet);
+    console.log( uniqueUsers.length +" items inside ");
+    console.log(userSet);
+    return uniqueUsers;
+  }
+
   const chooseWinners = (competitors) => {
-    // let usersNoCondition = competitors.slice().map( comment => comment.uid );
+    
     const winners = [];
     const reserves = [];
-    let usersNoCondition = competitors.slice().map( comment => comment.uid );
+    // let usersNoCondition = competitors.slice().map( info => info.uid );
+    let usersNoCondition = [];
+    if(userCondition===true) {
+      usersNoCondition = chooseWithUserCondition(competitors);
+    } else {
+      usersNoCondition = competitors.slice().map( info => info.uid );
+    }
+
     for(let i=1; i<=(+winnerAmount); i++) {
       const current = rollDice(usersNoCondition);
       usersNoCondition = current.currList;
@@ -38,7 +56,6 @@ const App = () => {
       usersNoCondition = current.currList;
       reserves.push(current.winID);
     };
-    // console.log("winners > " + winners + " reserves > " + reserves + " remained list > " + usersNoCondition + usersNoCondition.length);
     const winnersInfo = [];
     const reservesInfo = [];
     winners.forEach(id => {  winnersInfo.push(competitors.find(item => item.uid === id)) } );
@@ -176,7 +193,9 @@ const App = () => {
 
           <div className="buttons">
             <button> accept repetitive comments as one </button>
-            <button> accept comments of same user as one  </button>
+            <button
+            onClick={()=> setUserCondition(!userCondition)}
+            > accept comments of same user as one  </button>
           </div>
         </div>
 
@@ -186,6 +205,7 @@ const App = () => {
             const name = winner.name;
             const avatar = winner.avatar;
             const url = winner.url;
+            const key = order;
 
             return (
               <div  className="winners">
@@ -201,6 +221,7 @@ const App = () => {
             const name = winner.name;
             const avatar = winner.avatar;
             const url = winner.url;
+            const key = order;
 
             return (
               <div  className="reserve-winners">
