@@ -14,6 +14,7 @@ const App = () => {
   const [winners, setWinners] = useState([]);
   const [reserveWinners, setReserveWinners] = useState([]);
   const [userCondition, setUserCondition] = useState(false);
+  const [commentCondition, setCommentCondition] = useState(false);
 
   const rollDice = (list) => {
     const winnerIndex = Math.floor(Math.random()* list.length);
@@ -23,13 +24,31 @@ const App = () => {
     return { winID:winnerId, currList:remainedList};
   }
 
+  const chooseWithCommentCondition = (competitors) => {
+    const userMap = new Map();
+
+    competitors.forEach((x) => {
+      if (userMap.has(x.uid)) {
+        userMap.get(x.uid).add(x.text);
+      } else {
+        let newSet = new Set();
+        newSet.add(x.text);
+        userMap.set(x.uid, newSet);
+      }
+    });
+    let userArr = [];
+    userMap.forEach((value, key) => {
+      userArr = [...userArr, ...Array(value.size).fill(key)];
+    });
+
+    return userArr;
+  }
+
   const chooseWithUserCondition = (competitors) => {
     const userSet = new Set(
       competitors.slice().map(info => info.uid)
     );
     const uniqueUsers = Array.from(userSet);
-    console.log( uniqueUsers.length +" items inside ");
-    console.log(userSet);
     return uniqueUsers;
   }
 
@@ -38,22 +57,25 @@ const App = () => {
     const winners = [];
     const reserves = [];
     // let usersNoCondition = competitors.slice().map( info => info.uid );
-    let usersNoCondition = [];
+    let selectionGroup = [];
     if(userCondition===true) {
-      usersNoCondition = chooseWithUserCondition(competitors);
-    } else {
-      usersNoCondition = competitors.slice().map( info => info.uid );
+      selectionGroup = chooseWithUserCondition(competitors);
+    } else if (commentCondition===true) {
+      selectionGroup = chooseWithCommentCondition(competitors);
+    }
+    else {
+      selectionGroup = competitors.slice().map( info => info.uid );
     }
 
     for(let i=1; i<=(+winnerAmount); i++) {
-      const current = rollDice(usersNoCondition);
-      usersNoCondition = current.currList;
+      const current = rollDice(selectionGroup);
+      selectionGroup = current.currList;
       winners.push(current.winID);
       
     };
     for(let i=1; i<=(+reserveWinnerAmount); i++) {
-      const current = rollDice(usersNoCondition);
-      usersNoCondition = current.currList;
+      const current = rollDice(selectionGroup);
+      selectionGroup = current.currList;
       reserves.push(current.winID);
     };
     const winnersInfo = [];
@@ -192,7 +214,9 @@ const App = () => {
           </ul>
 
           <div className="buttons">
-            <button> accept repetitive comments as one </button>
+            <button
+            onClick={()=> setCommentCondition(!commentCondition)}
+            > accept repetitive comments as one </button>
             <button
             onClick={()=> setUserCondition(!userCondition)}
             > accept comments of same user as one  </button>
@@ -208,7 +232,7 @@ const App = () => {
             const key = order;
 
             return (
-              <div  className="winners">
+              <div key={key} className="winners">
                 <h2>WINNER #{rank} </h2>
                 <img
                 src={avatar} alt="user-avatar"></img>
@@ -224,7 +248,7 @@ const App = () => {
             const key = order;
 
             return (
-              <div  className="reserve-winners">
+              <div key={key} className="reserve-winners">
                 <h2>RESERVE WINNER #{rank} </h2>
                 <img
                 src={avatar} alt="user-avatar"></img>
@@ -240,3 +264,5 @@ const App = () => {
 }
 
 export default App;
+
+

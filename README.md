@@ -6,6 +6,7 @@ rollDice fonsiyonuna dışardan gelen parametrede eksiltme işlemi <br>
 setlediğim commentleri parametre olarak peşine kullanamıyorum <br>
 
 <br>
+keyleri division a tanımlayabilirsin
 <br>
 <br>
 <br>
