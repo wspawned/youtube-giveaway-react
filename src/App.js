@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const API_KEY = "***";
+const API_KEY = "";
 const API_URL = "https://youtube.googleapis.com/youtube/v3/commentThreads?part=snippet";
 
 const App = () => {
@@ -209,7 +209,8 @@ const App = () => {
         <div className="rules">
           <p> Rules of contest </p>
           <ul>
-            <li>reserve winner amount can't be lower than winner amount</li>
+            <li>If keywords entered picks among the comments that contains all keywords. </li>
+            <li>Reserve winner amount can't be lower than winner amount. </li>
             <li>something to do later</li>
           </ul>
 
@@ -262,7 +263,7 @@ const App = () => {
     </div>
   );
 }
-
+////
 export default App;
 
 
