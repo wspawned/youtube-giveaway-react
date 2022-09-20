@@ -6,6 +6,10 @@ Project is not deployed because I want to keep my API key secret
     <img style="max-width:300px;" src="https://cdn.loom.com/sessions/thumbnails/27cbbd5c5c534221882cefbeccbaa253-with-play.gif">
   </a>
 <br>
+
+# Notes
+
+A ListItem with component="a" and href works great for external links. For internal links it's better to use component={Link} with a to attribute.
 <br>
 <br>
 <br>

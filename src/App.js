@@ -1,28 +1,32 @@
-import { useState } from "react";
+import React, { useState } from "react";
+import { TextField, Button, Typography, Switch } from "@mui/material";
+import { List, ListItem, ListItemText, ListItemAvatar, Avatar } from "@mui/material";
+import { Divider } from "@mui/material";
+import { Box, Container } from "@mui/material";
 
-const API_KEY = "";
+const API_KEY = "***";
 const API_URL = "https://youtube.googleapis.com/youtube/v3/commentThreads?part=snippet";
 
 const App = () => {
-  const [name,setName] = useState("");
-  const [url,setUrl] = useState("");
-  const [keywords,setKeywords] = useState([]);
-  const [videoID,setVideoID] = useState("");
-  const [winnerAmount,setWinnerAmount] = useState("");
-  const [reserveWinnerAmount,setReserveWinnerAmount] =useState("");
-  const [competitors,setCompetitors] = useState([]);
+  const [name, setName] = useState("");
+  const [url, setUrl] = useState("");
+  const [keywords, setKeywords] = useState([]);
+  const [videoID, setVideoID] = useState("");
+  const [winnerAmount, setWinnerAmount] = useState("");
+  const [reserveWinnerAmount, setReserveWinnerAmount] = useState("");
+  const [competitors, setCompetitors] = useState([]);
   const [winners, setWinners] = useState([]);
   const [reserveWinners, setReserveWinners] = useState([]);
   const [userCondition, setUserCondition] = useState(false);
   const [commentCondition, setCommentCondition] = useState(false);
 
   const rollDice = (list) => {
-    const winnerIndex = Math.floor(Math.random()* list.length);
+    const winnerIndex = Math.floor(Math.random() * list.length);
     const winnerId = list[winnerIndex];
-    const remainedList = list.filter(id => id!== winnerId );
+    const remainedList = list.filter((id) => id !== winnerId);
 
-    return { winID:winnerId, currList:remainedList};
-  }
+    return { winID: winnerId, currList: remainedList };
+  };
 
   const chooseWithCommentCondition = (competitors) => {
     const userMap = new Map();
@@ -42,52 +46,51 @@ const App = () => {
     });
 
     return userArr;
-  }
+  };
 
   const chooseWithUserCondition = (competitors) => {
-    const userSet = new Set(
-      competitors.slice().map(info => info.uid)
-    );
+    const userSet = new Set(competitors.slice().map((info) => info.uid));
     const uniqueUsers = Array.from(userSet);
     return uniqueUsers;
-  }
+  };
 
   const chooseWinners = (competitors) => {
-    
     const winners = [];
     const reserves = [];
-    // let usersNoCondition = competitors.slice().map( info => info.uid );
+
     let selectionGroup = [];
-    if(userCondition===true) {
+    if (userCondition === true) {
       selectionGroup = chooseWithUserCondition(competitors);
-    } else if (commentCondition===true) {
+    } else if (commentCondition === true) {
       selectionGroup = chooseWithCommentCondition(competitors);
-    }
-    else {
-      selectionGroup = competitors.slice().map( info => info.uid );
+    } else {
+      selectionGroup = competitors.slice().map((info) => info.uid);
     }
 
-    for(let i=1; i<=(+winnerAmount); i++) {
+    for (let i = 1; i <= +winnerAmount; i++) {
       const current = rollDice(selectionGroup);
       selectionGroup = current.currList;
       winners.push(current.winID);
-      
-    };
-    for(let i=1; i<=(+reserveWinnerAmount); i++) {
+    }
+    for (let i = 1; i <= +reserveWinnerAmount; i++) {
       const current = rollDice(selectionGroup);
       selectionGroup = current.currList;
       reserves.push(current.winID);
-    };
+    }
     const winnersInfo = [];
     const reservesInfo = [];
-    winners.forEach(id => {  winnersInfo.push(competitors.find(item => item.uid === id)) } );
-    reserves.forEach(id => {  reservesInfo.push(competitors.find(item => item.uid === id)) } );
+    winners.forEach((id) => {
+      winnersInfo.push(competitors.find((item) => item.uid === id));
+    });
+    reserves.forEach((id) => {
+      reservesInfo.push(competitors.find((item) => item.uid === id));
+    });
     setWinners(winnersInfo);
     setReserveWinners(reservesInfo);
-  }
+  };
 
   const chooseCompetitors = (all) => {
-    const competitorsAll = (keywords.length)
+    const competitorsAll = keywords.length
       ? all.filter((item) => {
           return keywords
             .toLowerCase()
@@ -97,173 +100,237 @@ const App = () => {
             });
         })
       : all.slice();
-      setCompetitors(competitorsAll);
-      chooseWinners(competitorsAll);
-    };
-  
+    setCompetitors(competitorsAll);
+    chooseWinners(competitorsAll);
+  };
+
   async function apiCall() {
     const res = await fetch(`${API_URL}&videoId=${videoID}&key=${API_KEY}`);
     const json = await res.json();
     const comments = json.items.slice();
     const allComments = [];
-    comments.forEach( (comment) => {
-      const userId = comment.snippet.topLevelComment.snippet.authorChannelId.value;
-      const userName = comment.snippet.topLevelComment.snippet.authorDisplayName;
-      const userImage = comment.snippet.topLevelComment.snippet.authorProfileImageUrl;
-      const userUrl = comment.snippet.topLevelComment.snippet.authorChannelUrl
+    comments.forEach((comment) => {
+      const userId =
+        comment.snippet.topLevelComment.snippet.authorChannelId.value;
+      const userName =
+        comment.snippet.topLevelComment.snippet.authorDisplayName;
+      const userImage =
+        comment.snippet.topLevelComment.snippet.authorProfileImageUrl;
+      const userUrl = comment.snippet.topLevelComment.snippet.authorChannelUrl;
       const text = comment.snippet.topLevelComment.snippet.textDisplay;
 
-      return(
-        allComments.push( {uid:userId, name:userName, avatar:userImage, text:text, url:userUrl } )
-      )
+      return allComments.push({
+        uid: userId,
+        name: userName,
+        avatar: userImage,
+        text: text,
+        url: userUrl,
+      });
     });
 
     chooseCompetitors(allComments);
-  };
+  }
 
   return (
-    <div className="app">
-      <header className="app-header">
-        <p>Youtube Comment Raffle</p>
-      </header>
+    <Container>
+      <div className="app">
+      <Typography variant="h2" >Youtube Comment Raffle</Typography>
       <div>
-        <form className="conditions"
-        onSubmit={ (e) => {
-          e.preventDefault();
-          apiCall();
-        }}
+        <form
+          className="conditions"
+          onSubmit={(e) => {
+            e.preventDefault();
+            apiCall();
+          }}
         >
-          <div className="name-url">
-            <label>
-            Draw Name
-              <input
-              type={"text"}
-              placeholder="Teddy Picker"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              ></input>
-            </label>
+          <TextField
+            type="text"
+            label="Draw Name"
+            placeholder="Spawn Figure Giweavay"
+            variant="outlined"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+          />
+          <TextField
+            type="url"
+            label="Content URL"
+            placeholder="https://www.youtube.com/watch?v=FwwldUF6TU8"
+            variant="outlined"
+            value={url}
+            onChange={(e) => {
+              const value = e.target.value;
+              setUrl(value);
+              const id = value.slice(value.indexOf("=") + 1);
+              setVideoID(id);
+            }}
+            required
+          />
+          <br />
 
-            <label
-            className="url">
-            Content URL
-              <input
-              type={"url"}
-              placeholder="https://www.youtube.com/watch?v=FwwldUF6TU8"
-              value={url}
-              onChange={(e) => {
-                const value = e.target.value;
-                setUrl(value);
-                const id = value.slice(value.indexOf("=")+1);
-                setVideoID(id);
-              }}
-              required
-              ></input>
-            </label>
-          </div>
-          
-          <div className="numbers">
-            <label>
-              Winners
-              <input type={"number"} min="1" step="1"
-              value={winnerAmount}
-              onChange= {(e) => {
-                setWinnerAmount(e.target.value);
-              }}
-              required></input>
-            </label>
+          <TextField
+            type="number"
+            label="Winners"
+            min="1"
+            step="1"
+            variant="outlined"
+            InputLabelProps={{ shrink: true }}
+            value={winnerAmount}
+            onChange={(e) => {
+              setWinnerAmount(e.target.value);
+            }}
+            required
+          />
+          <TextField
+            type="number"
+            label="Reserve Winners"
+            min={winnerAmount}
+            step="1"
+            variant="outlined"
+            value={reserveWinnerAmount}
+            onChange={(e) => {
+              setReserveWinnerAmount(e.target.value);
+            }}
+            required
+          />
+          <br />
 
-            <label>
-              Reserve Winners
-              <input type={"number"} min={winnerAmount} step="1"
-              value={reserveWinnerAmount}
-              onChange= { (e) => {
-                setReserveWinnerAmount(e.target.value);
-              }}
-              required></input>
-            </label>
-          </div>
+          <TextField
+            type="search"
+            label="Keywords"
+            placeholder="McFarlane throne Spawn wings"
+            helperText="use space btw keywords"
+            variant="standard"
+            fullWidth
+            onChange={(e) => {
+              setKeywords(e.target.value);
+            }}
+          />
+          <br />
 
-          <label>
-            Keywords
-            <input
-              className="keywords"
-              type={"search"}
-              value={keywords}
-              placeholder="use space btw keywords"
-              onChange={
-                (e) => {
-                setKeywords(e.target.value);
-              }
-            }
-            ></input>
-          </label>
-
-          <button 
-          className="submit"
-          type="submit"> Choose the Winners </button>
-
+          <Button type="submit" variant="contained" color="primary">
+            Choose the Winners
+          </Button>
         </form>
 
         <div className="rules">
-          <p> Rules of contest </p>
-          <ul>
-            <li>If keywords entered picks among the comments that contains all keywords. </li>
-            <li>Reserve winner amount can't be lower than winner amount. </li>
-            <li>something to do later</li>
-          </ul>
-
-          <div className="buttons">
-            <button
-            onClick={()=> setCommentCondition(!commentCondition)}
-            > accept repetitive comments as one </button>
-            <button
-            onClick={()=> setUserCondition(!userCondition)}
-            > accept comments of same user as one  </button>
-          </div>
+          <Typography variant="h6">
+            <p> Rules of contest </p>
+            <ul>
+              <li>Reserve winner amount can't be lower than winner amount. </li>
+              <li>
+                If keywords entered picks among the comments that contains all
+                keywords.
+              </li>
+              <li>
+                Accept all comments of same user as one
+                <Switch onClick={() => setUserCondition(!userCondition)} />
+              </li>
+              <li>
+                Accept repetitive comments of same user as one
+                <Switch
+                  onClick={() => setCommentCondition(!commentCondition)}
+                />
+              </li>
+            </ul>
+          </Typography>
         </div>
 
         <div className="results">
-          { winners.map( (winner, order) => {
-            const rank = order+1;
-            const name = winner.name;
-            const avatar = winner.avatar;
-            const url = winner.url;
-            const key = order;
+          {winners.length ? (
+            <List>
+              {" "}
+              WINNERS
+              {winners.map((winner, order) => {
+                const rank = order + 1;
+                const name = winner.name;
+                const avatar = winner.avatar;
+                const url = winner.url;
+                const text = winner.text;
+                const key = order;
 
-            return (
-              <div key={key} className="winners">
-                <h2>WINNER #{rank} </h2>
-                <img
-                src={avatar} alt="user-avatar"></img>
-                <a href={url} > {` ${name} `} </a>
-              </div>
-            )
-          })}
-          { reserveWinners.map( (winner, order) => {
-            const rank = order+1;
-            const name = winner.name;
-            const avatar = winner.avatar;
-            const url = winner.url;
-            const key = order;
+                return (
+                  <ListItem
+                    alignItems="flex-start"
+                    button
+                    component="a"
+                    href={url}
+                  >
+                    <ListItemAvatar>
+                      <Avatar alt={name} src={avatar} />
+                    </ListItemAvatar>
+                    <ListItemText
+                      primary={` #${rank} ${name} `}
+                      secondary={
+                        <React.Fragment>
+                          <Typography
+                            sx={{ display: "inline" }}
+                            component="span"
+                            variant="body2"
+                            color="text.primary"
+                          >
+                            {name}
+                          </Typography>
+                          {` — ${text}`}
+                        </React.Fragment>
+                      }
+                    ></ListItemText>
+                  </ListItem>
+                );
+              })}
+              <Divider variant="inset" component="li" />
+            </List>
+          ) : null}
 
-            return (
-              <div key={key} className="reserve-winners">
-                <h2>RESERVE WINNER #{rank} </h2>
-                <img
-                src={avatar} alt="user-avatar"></img>
-                <a href={url} > {` ${name} `} </a>
-              </div>
-            )
-          })}
+          {reserveWinners.length ? (
+            <List>
+              {" "}
+              RESERVE WINNERS
+              {reserveWinners.map((winner, order) => {
+                const rank = order + 1;
+                const name = winner.name;
+                const avatar = winner.avatar;
+                const url = winner.url;
+                const text = winner.text;
+                const key = order;
+
+                return (
+                  <ListItem
+                    alignItems="flex-start"
+                    button
+                    component="a"
+                    href={url}
+                  >
+                    <ListItemAvatar>
+                      <Avatar alt={name} src={avatar} />
+                    </ListItemAvatar>
+                    <ListItemText
+                      primary={` #${rank} ${name} `}
+                      secondary={
+                        <React.Fragment>
+                          <Typography
+                            sx={{ display: "inline" }}
+                            component="span"
+                            variant="body2"
+                            color="text.primary"
+                          >
+                            {name}
+                          </Typography>
+                          {` — ${text}`}
+                        </React.Fragment>
+                      }
+                    ></ListItemText>
+                  </ListItem>
+                );
+              })}
+            </List>
+          ) : null}
         </div>
-
       </div>
     </div>
+    </Container>
+    
   );
-}
-////
+};
+
 export default App;
-
-
