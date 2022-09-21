@@ -1,11 +1,14 @@
 import React, { useState } from "react";
+import axios from "axios";
+import Modal from "./Modal";
 import { TextField, Button, Typography, Switch } from "@mui/material";
 import { List, ListItem, ListItemText, ListItemAvatar, Avatar } from "@mui/material";
 import { Divider } from "@mui/material";
 import { Box, Container, Paper } from "@mui/material";
-import { fontSize } from "@mui/system";
+import { Fab } from "@mui/material";
+import CasinoIcon from '@mui/icons-material/Casino';
 
-const API_KEY = "";
+const API_KEY = "***";
 const API_URL = "https://youtube.googleapis.com/youtube/v3/commentThreads?part=snippet";
 
 const App = () => {
@@ -20,6 +23,7 @@ const App = () => {
   const [reserveWinners, setReserveWinners] = useState([]);
   const [userCondition, setUserCondition] = useState(false);
   const [commentCondition, setCommentCondition] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
   const rollDice = (list) => {
     const winnerIndex = Math.floor(Math.random() * list.length);
@@ -105,68 +109,79 @@ const App = () => {
     chooseWinners(competitorsAll);
   };
 
-  async function apiCall() {
-    const res = await fetch(`${API_URL}&videoId=${videoID}&key=${API_KEY}`);
-    const json = await res.json();
-    const comments = json.items.slice();
-    const allComments = [];
-    comments.forEach((comment) => {
-      const userId =
-        comment.snippet.topLevelComment.snippet.authorChannelId.value;
-      const userName =
-        comment.snippet.topLevelComment.snippet.authorDisplayName;
-      const userImage =
-        comment.snippet.topLevelComment.snippet.authorProfileImageUrl;
-      const userUrl = comment.snippet.topLevelComment.snippet.authorChannelUrl;
-      const text = comment.snippet.topLevelComment.snippet.textDisplay;
 
-      return allComments.push({
-        uid: userId,
-        name: userName,
-        avatar: userImage,
-        text: text,
-        url: userUrl,
+
+  async function getComments () {
+    try {
+      let res = await axios.get(`${API_URL}&videoId=${videoID}&key=${API_KEY}`);
+      let comments=[];
+      comments = comments.concat(res.data.items.slice());
+      while (res.data.nextPageToken) {
+        res = await axios.get(`${API_URL}&videoId=${videoID}&key=${API_KEY}&pageToken=${res.data.nextPageToken}`);
+        comments = comments.concat(res.data.items.slice());
+      }
+      const allComments = [];
+      comments.forEach((comment) => {
+        const userId = comment.snippet.topLevelComment.snippet.authorChannelId.value;
+        const userName = comment.snippet.topLevelComment.snippet.authorDisplayName;
+        const userImage = comment.snippet.topLevelComment.snippet.authorProfileImageUrl;
+        const userUrl = comment.snippet.topLevelComment.snippet.authorChannelUrl;
+        const text = comment.snippet.topLevelComment.snippet.textDisplay;
+
+        return allComments.push({
+          uid: userId,
+          name: userName,
+          avatar: userImage,
+          text: text,
+          url: userUrl,
+        });
       });
-    });
 
     chooseCompetitors(allComments);
+    } catch(error) {
+      console.error(error);
+    }
   }
+
+  const toggleModal = () => setShowModal(!showModal);
 
   return (
     <Box
+      className="app"
       sx={{
         display: "flex",
-        minWidth: "100vw",
         minHeight: "100vh",
+        maxWidth: "100vw",
         bgcolor: "primary.light",
         justifyContent: "center",
       }}
     >
-      <div className="app">
-        
-        <div>
+      
           <Paper
             sx={{
-              width: "100%",
-              p: 5, mt:5, justifyContent:"center"
+              width: "50%",
+              p: 5,
+              my: 5,
+              justifyContent: "center",
             }}
-            elevation= "24"
+            elevation="24"
           >
-            <Typography variant="h3" mb={3} textAlign="center" color="#204f75" >
-          Youtube Comment Picker
-        </Typography>
+            <Typography variant="h3" mb={3} textAlign="center" color="#204f75">
+              Youtube Comment Picker
+            </Typography>
             <form
               className="conditions"
               onSubmit={(e) => {
                 e.preventDefault();
-                apiCall();
+                getComments();
+                toggleModal();
               }}
             >
               <Box
                 sx={{
                   display: "grid",
                   gridTemplateColumns: "repeat(2, 1fr)",
-                  gap:3,
+                  gap: 3,
                 }}
               >
                 <TextField
@@ -217,14 +232,45 @@ const App = () => {
                   }}
                   required
                 />
+              </Box>
 
-                
-                </Box>
+              <Paper
+                sx={{
+                  mt: 2,
+                  p: 2,
+                  bgcolor: "secondary.light",
+                  textAlign: "left",
+                }}
+              >
+                <Typography sx={{ fontSize: 15 }}>
+                  <p> Rules of contest </p>
+                  <ul>
+                    <li>
+                      Reserve winner amount can't be lower than winner amount.{" "}
+                    </li>
+                    <li>
+                      If keywords entered picks among the comments that contains
+                      all keywords.
+                    </li>
+                    <li>
+                      Accept all comments of same user as one
+                      <Switch
+                        edge="end"
+                        onClick={() => setUserCondition(!userCondition)}
+                      />
+                    </li>
+                    <li>
+                      Accept repetitive comments of same user as one
+                      <Switch
+                        onClick={() => setCommentCondition(!commentCondition)}
+                      />
+                    </li>
+                  </ul>
+                </Typography>
+              </Paper>
 
-                <Box sx={{
-                  
-                }}>
-                  <TextField
+              <Box sx={{}}>
+                <TextField
                   type="search"
                   label="Keywords"
                   placeholder="McFarlane throne Spawn wings"
@@ -234,57 +280,44 @@ const App = () => {
                   onChange={(e) => {
                     setKeywords(e.target.value);
                   }}
+                  sx={{ mt: 2 }}
                 />
                 <br />
 
-                <Button type="submit" variant="contained" color="primary" >
-                  Choose the Winners
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  sx={{ display: "block", m: "auto" }}
+                >
+                  Roll the Dice <CasinoIcon sx={{mb:-0.8}} />
                 </Button>
-                </Box>
-                
-
-                
-              
+              </Box>
             </form>
-
-            <Paper
-              sx={{
-                mt:2, p: 2,
-                bgcolor: "secondary.light",
-                textAlign: "left", 
-              }}
-              
-            >
-              <Typography >
-                <p> Rules of contest </p>
-                <ul>
-                  <li>
-                    Reserve winner amount can't be lower than winner amount.{" "}
-                  </li>
-                  <li>
-                    If keywords entered picks among the comments that contains
-                    all keywords.
-                  </li>
-                  <li>
-                    Accept all comments of same user as one
-                    <Switch onClick={() => setUserCondition(!userCondition)} />
-                  </li>
-                  <li>
-                    Accept repetitive comments of same user as one
-                    <Switch
-                      onClick={() => setCommentCondition(!commentCondition)}
-                    />
-                  </li>
-                </ul>
-              </Typography>
-            </Paper>
           </Paper>
 
-          <div className="results">
-            {winners.length ? (
+            {showModal ? (
+              <Modal>
+          <Box
+          sx={{maxWidth:"100vw", minHeight:"100vh", bgcolor:"#78909c", 
+        zIndex:10, position:"absolute", left:0, right:0, top:0, 
+        justifyContent:"center", alignContent:"center", display:"flex", py:3, }}
+          >
+            <Paper
+            elevation="24"
+            sx={{width:"50%", m:"auto", p:2  }}
+            >
+            <Fab
+            sx={{color:"red",  bgcolor:"white", color:"#f44336", float:"right", zIndex:"10",
+            height:"20px", width:"35px", fontSize:15, textAlign:"center" }}
+            onClick={()=> toggleModal()}>X</Fab>
               <List>
-                {" "}
-                WINNERS
+                <Typography
+                variant="h4"
+                sx={{color:"#ffd600", textAlign:"center", m:"auto", width:"50%" }}
+                >WINNERS</Typography>
+                <Divider variant="inset" component="li" />
+                
                 {winners.map((winner, order) => {
                   const rank = order + 1;
                   const name = winner.name;
@@ -322,14 +355,19 @@ const App = () => {
                     </ListItem>
                   );
                 })}
-                <Divider variant="inset" component="li" />
+                
               </List>
-            ) : null}
+            
 
-            {reserveWinners.length ? (
+            
               <List>
-                {" "}
-                RESERVE WINNERS
+              <Typography
+                variant="h4"
+                sx={{color:"#b0bec5", textAlign:"center", }}
+                >RESERVE WINNERS
+                </Typography>
+                <Divider variant="inset" component="li" />
+                
                 {reserveWinners.map((winner, order) => {
                   const rank = order + 1;
                   const name = winner.name;
@@ -368,10 +406,11 @@ const App = () => {
                   );
                 })}
               </List>
+              </Paper>
+          </Box>
+          </Modal>  
             ) : null}
-          </div>
-        </div>
-      </div>
+        
     </Box>
   );
 };
