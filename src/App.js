@@ -3,7 +3,6 @@ import { TextField, Button, Typography, Switch } from "@mui/material";
 import { List, ListItem, ListItemText, ListItemAvatar, Avatar } from "@mui/material";
 import { Divider } from "@mui/material";
 import { Box, Container, Paper } from "@mui/material";
-import { fontSize } from "@mui/system";
 
 const API_KEY = "";
 const API_URL = "https://youtube.googleapis.com/youtube/v3/commentThreads?part=snippet";
@@ -134,27 +133,28 @@ const App = () => {
 
   return (
     <Box
+      className="app"
       sx={{
         display: "flex",
-        minWidth: "100vw",
         minHeight: "100vh",
         bgcolor: "primary.light",
         justifyContent: "center",
       }}
     >
-      <div className="app">
-        
+      <div     >
         <div>
           <Paper
             sx={{
               width: "100%",
-              p: 5, mt:5, justifyContent:"center"
+              p: 5,
+              mt: 5,
+              justifyContent: "center",
             }}
-            elevation= "24"
+            elevation="24"
           >
-            <Typography variant="h3" mb={3} textAlign="center" color="#204f75" >
-          Youtube Comment Picker
-        </Typography>
+            <Typography variant="h3" mb={3} textAlign="center" color="#204f75">
+              Youtube Comment Picker
+            </Typography>
             <form
               className="conditions"
               onSubmit={(e) => {
@@ -166,7 +166,7 @@ const App = () => {
                 sx={{
                   display: "grid",
                   gridTemplateColumns: "repeat(2, 1fr)",
-                  gap:3,
+                  gap: 3,
                 }}
               >
                 <TextField
@@ -217,14 +217,45 @@ const App = () => {
                   }}
                   required
                 />
+              </Box>
 
-                
-                </Box>
+              <Paper
+                sx={{
+                  mt: 2,
+                  p: 2,
+                  bgcolor: "secondary.light",
+                  textAlign: "left",
+                }}
+              >
+                <Typography sx={{ fontSize: 15 }}>
+                  <p> Rules of contest </p>
+                  <ul>
+                    <li>
+                      Reserve winner amount can't be lower than winner amount.{" "}
+                    </li>
+                    <li>
+                      If keywords entered picks among the comments that contains
+                      all keywords.
+                    </li>
+                    <li>
+                      Accept all comments of same user as one
+                      <Switch
+                        edge="end"
+                        onClick={() => setUserCondition(!userCondition)}
+                      />
+                    </li>
+                    <li>
+                      Accept repetitive comments of same user as one
+                      <Switch
+                        onClick={() => setCommentCondition(!commentCondition)}
+                      />
+                    </li>
+                  </ul>
+                </Typography>
+              </Paper>
 
-                <Box sx={{
-                  
-                }}>
-                  <TextField
+              <Box sx={{}}>
+                <TextField
                   type="search"
                   label="Keywords"
                   placeholder="McFarlane throne Spawn wings"
@@ -234,50 +265,20 @@ const App = () => {
                   onChange={(e) => {
                     setKeywords(e.target.value);
                   }}
+                  sx={{ mt: 2 }}
                 />
                 <br />
 
-                <Button type="submit" variant="contained" color="primary" >
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  sx={{ display: "block", m: "auto" }}
+                >
                   Choose the Winners
                 </Button>
-                </Box>
-                
-
-                
-              
+              </Box>
             </form>
-
-            <Paper
-              sx={{
-                mt:2, p: 2,
-                bgcolor: "secondary.light",
-                textAlign: "left", 
-              }}
-              
-            >
-              <Typography >
-                <p> Rules of contest </p>
-                <ul>
-                  <li>
-                    Reserve winner amount can't be lower than winner amount.{" "}
-                  </li>
-                  <li>
-                    If keywords entered picks among the comments that contains
-                    all keywords.
-                  </li>
-                  <li>
-                    Accept all comments of same user as one
-                    <Switch onClick={() => setUserCondition(!userCondition)} />
-                  </li>
-                  <li>
-                    Accept repetitive comments of same user as one
-                    <Switch
-                      onClick={() => setCommentCondition(!commentCondition)}
-                    />
-                  </li>
-                </ul>
-              </Typography>
-            </Paper>
           </Paper>
 
           <div className="results">
