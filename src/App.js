@@ -138,24 +138,23 @@ const App = () => {
         display: "flex",
         minWidth: "100vw",
         minHeight: "100vh",
-        p: 3,
         bgcolor: "primary.light",
         justifyContent: "center",
-        alignItems: "center",
       }}
     >
       <div className="app">
-        <Typography variant="h3" mb={2} textAlign="center" >
-          Youtube Comment Raffle
-        </Typography>
+        
         <div>
           <Paper
             sx={{
               width: "100%",
-              p: 2, 
+              p: 5, mt:5, justifyContent:"center"
             }}
             elevation= "24"
           >
+            <Typography variant="h3" mb={3} textAlign="center" color="#204f75" >
+          Youtube Comment Picker
+        </Typography>
             <form
               className="conditions"
               onSubmit={(e) => {
@@ -167,7 +166,7 @@ const App = () => {
                 sx={{
                   display: "grid",
                   gridTemplateColumns: "repeat(2, 1fr)",
-                  gap:3, p:3,
+                  gap:3,
                 }}
               >
                 <TextField
@@ -200,7 +199,6 @@ const App = () => {
                   min="1"
                   step="1"
                   variant="outlined"
-                  InputLabelProps={{ shrink: true }}
                   value={winnerAmount}
                   onChange={(e) => {
                     setWinnerAmount(e.target.value);
@@ -219,9 +217,14 @@ const App = () => {
                   }}
                   required
                 />
+
+                
                 </Box>
 
-                <TextField
+                <Box sx={{
+                  
+                }}>
+                  <TextField
                   type="search"
                   label="Keywords"
                   placeholder="McFarlane throne Spawn wings"
@@ -231,26 +234,28 @@ const App = () => {
                   onChange={(e) => {
                     setKeywords(e.target.value);
                   }}
-                  sx={{ width: "60%" }}
                 />
                 <br />
 
-                <Button type="submit" variant="contained" color="primary">
+                <Button type="submit" variant="contained" color="primary" >
                   Choose the Winners
                 </Button>
+                </Box>
+                
+
+                
               
             </form>
 
             <Paper
               sx={{
-                p: 2,
-                m: 3,
+                mt:2, p: 2,
                 bgcolor: "secondary.light",
                 textAlign: "left", 
               }}
               
             >
-              <Typography>
+              <Typography >
                 <p> Rules of contest </p>
                 <ul>
                   <li>
