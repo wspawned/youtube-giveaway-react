@@ -3,8 +3,9 @@ import { TextField, Button, Typography, Switch } from "@mui/material";
 import { List, ListItem, ListItemText, ListItemAvatar, Avatar } from "@mui/material";
 import { Divider } from "@mui/material";
 import { Box, Container, Paper } from "@mui/material";
+import CasinoIcon from '@mui/icons-material/Casino';
 
-const API_KEY = "";
+const API_KEY = "***";
 const API_URL = "https://youtube.googleapis.com/youtube/v3/commentThreads?part=snippet";
 
 const App = () => {
@@ -275,7 +276,7 @@ const App = () => {
                   color="primary"
                   sx={{ display: "block", m: "auto" }}
                 >
-                  Choose the Winners
+                  Roll the Dice <CasinoIcon sx={{mb:-0.8}} />
                 </Button>
               </Box>
             </form>
