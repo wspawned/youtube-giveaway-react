@@ -6,11 +6,13 @@ import { TextField, Button, Typography, Switch } from "@mui/material";
 import { List, ListItem, ListItemText, ListItemAvatar, Avatar } from "@mui/material";
 import { Box, Paper, Divider, Fab } from "@mui/material";
 import CasinoIcon from '@mui/icons-material/Casino';
+import { connect } from "react-redux";
+import { getWinners, toggleModal } from "./actions";
 
-const API_KEY = "***";
+const API_KEY = "AIzaSyCQ5NxVzH45Y1Wa0NakqsF4Mw86v8bGbto";
 const API_URL = "https://youtube.googleapis.com/youtube/v3/commentThreads?part=snippet";
 
-const App = () => {
+const App = (props) => {
   const [name, setName] = useState("");
   const [url, setUrl] = useState("");
   const [keywords, setKeywords] = useState([]);
@@ -22,6 +24,8 @@ const App = () => {
   const [userCondition, setUserCondition] = useState(false);
   const [commentCondition, setCommentCondition] = useState(false);
   const [showModal, setShowModal] = useState(false);
+
+
 
   const chooseWinners = (competitors) => {
     const winners = [];
@@ -378,4 +382,11 @@ const App = () => {
   );
 };
 
-export default App;
+const mapStateToProps = state => {
+  return {
+    test: state.test,
+    winners: state.winners
+  }
+}
+
+export default connect(mapStateToProps, {getWinners, toggleModal} )(App);
