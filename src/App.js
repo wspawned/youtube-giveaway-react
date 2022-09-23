@@ -1,11 +1,10 @@
 import React, { useState } from "react";
 import axios from "axios";
 import Modal from "./Modal";
+import { rollDice, chooseWithUserCondition, chooseWithCommentCondition } from "./util";
 import { TextField, Button, Typography, Switch } from "@mui/material";
 import { List, ListItem, ListItemText, ListItemAvatar, Avatar } from "@mui/material";
-import { Divider } from "@mui/material";
-import { Box, Container, Paper } from "@mui/material";
-import { Fab } from "@mui/material";
+import { Box, Paper, Divider, Fab } from "@mui/material";
 import CasinoIcon from '@mui/icons-material/Casino';
 
 const API_KEY = "***";
@@ -18,46 +17,11 @@ const App = () => {
   const [videoID, setVideoID] = useState("");
   const [winnerAmount, setWinnerAmount] = useState("");
   const [reserveWinnerAmount, setReserveWinnerAmount] = useState("");
-  const [competitors, setCompetitors] = useState([]);
   const [winners, setWinners] = useState([]);
   const [reserveWinners, setReserveWinners] = useState([]);
   const [userCondition, setUserCondition] = useState(false);
   const [commentCondition, setCommentCondition] = useState(false);
   const [showModal, setShowModal] = useState(false);
-
-  const rollDice = (list) => {
-    const winnerIndex = Math.floor(Math.random() * list.length);
-    const winnerId = list[winnerIndex];
-    const remainedList = list.filter((id) => id !== winnerId);
-
-    return { winID: winnerId, currList: remainedList };
-  };
-
-  const chooseWithCommentCondition = (competitors) => {
-    const userMap = new Map();
-
-    competitors.forEach((x) => {
-      if (userMap.has(x.uid)) {
-        userMap.get(x.uid).add(x.text);
-      } else {
-        let newSet = new Set();
-        newSet.add(x.text);
-        userMap.set(x.uid, newSet);
-      }
-    });
-    let userArr = [];
-    userMap.forEach((value, key) => {
-      userArr = [...userArr, ...Array(value.size).fill(key)];
-    });
-
-    return userArr;
-  };
-
-  const chooseWithUserCondition = (competitors) => {
-    const userSet = new Set(competitors.slice().map((info) => info.uid));
-    const uniqueUsers = Array.from(userSet);
-    return uniqueUsers;
-  };
 
   const chooseWinners = (competitors) => {
     const winners = [];
@@ -94,9 +58,9 @@ const App = () => {
     setReserveWinners(reservesInfo);
   };
 
-  const chooseCompetitors = (all) => {
-    const competitorsAll = keywords.length
-      ? all.filter((item) => {
+  const chooseCompetitors = (allComments) => {
+    const competitors = keywords.length
+      ? allComments.filter((item) => {
           return keywords
             .toLowerCase()
             .split(" ")
@@ -104,12 +68,9 @@ const App = () => {
               return item.text.toLowerCase().includes(keyword);
             });
         })
-      : all.slice();
-    setCompetitors(competitorsAll);
-    chooseWinners(competitorsAll);
+      : allComments.slice();
+    chooseWinners(competitors);
   };
-
-
 
   async function getComments () {
     try {
@@ -308,7 +269,7 @@ const App = () => {
             sx={{width:"50%", m:"auto", p:2  }}
             >
             <Fab
-            sx={{color:"red",  bgcolor:"white", color:"#f44336", float:"right", zIndex:"10",
+            sx={{color:"red",  bgcolor:"white", float:"right", zIndex:"10",
             height:"20px", width:"35px", fontSize:15, textAlign:"center" }}
             onClick={()=> toggleModal()}>X</Fab>
               <List>
@@ -332,6 +293,7 @@ const App = () => {
                       button
                       component="a"
                       href={url}
+                      key={key}
                     >
                       <ListItemAvatar>
                         <Avatar alt={name} src={avatar} />
@@ -382,6 +344,7 @@ const App = () => {
                       button
                       component="a"
                       href={url}
+                      key={key}
                     >
                       <ListItemAvatar>
                         <Avatar alt={name} src={avatar} />
