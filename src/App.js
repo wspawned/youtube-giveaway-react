@@ -1,24 +1,22 @@
-import Winners from "./Winners";
+import Inputs from "./components/Inputs";
+import Winners from "./components/Winners";
 import { rollDice, chooseWithUserCondition, chooseWithCommentCondition } from "./util";
-import React, { useState } from "react";
 import axios from "axios";
 import { connect } from "react-redux";
 import { getWinners, getReserveWinners, toggleModal } from "./actions";
-import { TextField, Button, Typography, Switch, Box, Paper } from "@mui/material";
-import CasinoIcon from '@mui/icons-material/Casino';
+import { Box } from "@mui/material";
 
 const API_KEY = "***";
 const API_URL = "https://youtube.googleapis.com/youtube/v3/commentThreads?part=snippet";
 
 const App = (props) => {
-  const [name, setName] = useState("");
-  const [url, setUrl] = useState("");
-  const [keywords, setKeywords] = useState([]);
-  const [videoID, setVideoID] = useState("");
-  const [winnerAmount, setWinnerAmount] = useState("");
-  const [reserveWinnerAmount, setReserveWinnerAmount] = useState("");
-  const [userCondition, setUserCondition] = useState(false);
-  const [commentCondition, setCommentCondition] = useState(false);
+  
+  const userCondition = props.userCondition;
+  const commentCondition = props.commentCondition;
+  const videoID = props.videoID;
+  const keywords = props.keywords;
+  const winnerAmount = props.winnerAmount;
+  const reserveWinnerAmount = props.reserveWinnerAmount;
 
   const toggleModal = props.toggleModal;
   const getWinners = props.getWinners;
@@ -75,10 +73,10 @@ const App = (props) => {
     chooseWinners(competitors);
   };
 
-  async function getComments () {
+  async function getComments() {
     try {
       let res = await axios.get(`${API_URL}&videoId=${videoID}&key=${API_KEY}`);
-      let comments=[];
+      let comments = [];
       comments = comments.concat(res.data.items.slice());
       while (res.data.nextPageToken) {
         res = await axios.get(`${API_URL}&videoId=${videoID}&key=${API_KEY}&pageToken=${res.data.nextPageToken}`);
@@ -101,172 +99,37 @@ const App = (props) => {
         });
       });
 
-    chooseCompetitors(allComments);
-    } catch(error) {
+      chooseCompetitors(allComments);
+    } catch (error) {
       console.error(error);
     }
+  }
+
+  const handleSubmit = () => {
+    getComments();
+    toggleModal();
   }
 
   return (
     <Box
       className="app"
-      sx={{
-        display: "flex",
-        minHeight: "100vh",
-        maxWidth: "100vw",
-        bgcolor: "primary.light",
-        justifyContent: "center",
-      }}
+      sx={{display: "flex", minHeight: "100vh", maxWidth: "100vw", bgcolor: "primary.light", justifyContent: "center" }}
     >
-      
-          <Paper
-            sx={{
-              width: "50%",
-              p: 5,
-              my: 5,
-              justifyContent: "center",
-            }}
-            elevation="24"
-          >
-            <Typography variant="h3" mb={3} textAlign="center" color="#204f75">
-              Youtube Comment Picker
-            </Typography>
-            <form
-              className="conditions"
-              onSubmit={(e) => {
-                e.preventDefault();
-                getComments();
-                toggleModal();
-              }}
-            >
-              <Box
-                sx={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(2, 1fr)",
-                  gap: 3,
-                }}
-              >
-                <TextField
-                  type="text"
-                  label="Draw Name"
-                  placeholder="Spawn Figure Giweavay"
-                  variant="outlined"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                />
-                <TextField
-                  type="url"
-                  label="Content URL"
-                  placeholder="https://www.youtube.com/watch?v=FwwldUF6TU8"
-                  variant="outlined"
-                  value={url}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    setUrl(value);
-                    const id = value.slice(value.indexOf("=") + 1);
-                    setVideoID(id);
-                  }}
-                  required
-                />
-
-                <TextField
-                  type="number"
-                  label="Winners"
-                  min="1"
-                  step="1"
-                  variant="outlined"
-                  value={winnerAmount}
-                  onChange={(e) => {
-                    setWinnerAmount(e.target.value);
-                  }}
-                  required
-                />
-                <TextField
-                  type="number"
-                  label="Reserve Winners"
-                  min={winnerAmount}
-                  step="1"
-                  variant="outlined"
-                  value={reserveWinnerAmount}
-                  onChange={(e) => {
-                    setReserveWinnerAmount(e.target.value);
-                  }}
-                  required
-                />
-              </Box>
-
-              <Paper
-                sx={{
-                  mt: 2,
-                  p: 2,
-                  bgcolor: "secondary.light",
-                  textAlign: "left",
-                }}
-              >
-                <Typography sx={{ fontSize: 15 }}>
-                  <p> Rules of contest </p>
-                  <ul>
-                    <li>
-                      Reserve winner amount can't be lower than winner amount.{" "}
-                    </li>
-                    <li>
-                      If keywords entered picks among the comments that contains
-                      all keywords.
-                    </li>
-                    <li>
-                      Accept all comments of same user as one
-                      <Switch
-                        edge="end"
-                        onClick={() => setUserCondition(!userCondition)}
-                      />
-                    </li>
-                    <li>
-                      Accept repetitive comments of same user as one
-                      <Switch
-                        onClick={() => setCommentCondition(!commentCondition)}
-                      />
-                    </li>
-                  </ul>
-                </Typography>
-              </Paper>
-
-              <Box sx={{}}>
-                <TextField
-                  type="search"
-                  label="Keywords"
-                  placeholder="McFarlane throne Spawn wings"
-                  helperText="use space btw keywords"
-                  variant="standard"
-                  fullWidth
-                  onChange={(e) => {
-                    setKeywords(e.target.value);
-                  }}
-                  sx={{ mt: 2 }}
-                />
-                <br />
-
-                <Button
-                  type="submit"
-                  variant="contained"
-                  color="primary"
-                  sx={{ display: "block", m: "auto" }}
-                >
-                  Roll the Dice <CasinoIcon sx={{mb:-0.8}} />
-                </Button>
-              </Box>
-            </form>
-          </Paper>
-
-            <Winners/>
-        
+      <Inputs handleSubmit={() => handleSubmit()} />
+      <Winners />
     </Box>
   );
 };
 
 const mapStateToProps = state => {
   return {
-    test: state.test
+    test: state.test,
+    videoID: state.videoID,
+    keywords: state.keywords,
+    userCondition: state.userCondition,
+    commentCondition: state.commentCondition,
+    winnerAmount: state.winnerAmount,
+    reserveWinnerAmount: state.reserveWinnerAmount,
   }
 }
 
