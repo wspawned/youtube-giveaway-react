@@ -1,27 +1,30 @@
+import Winners from "./Winners";
+import { rollDice, chooseWithUserCondition, chooseWithCommentCondition } from "./util";
 import React, { useState } from "react";
 import axios from "axios";
-import Modal from "./Modal";
-import { rollDice, chooseWithUserCondition, chooseWithCommentCondition } from "./util";
-import { TextField, Button, Typography, Switch } from "@mui/material";
-import { List, ListItem, ListItemText, ListItemAvatar, Avatar } from "@mui/material";
-import { Box, Paper, Divider, Fab } from "@mui/material";
+import { connect } from "react-redux";
+import { getWinners, getReserveWinners, toggleModal } from "./actions";
+import { TextField, Button, Typography, Switch, Box, Paper } from "@mui/material";
 import CasinoIcon from '@mui/icons-material/Casino';
 
 const API_KEY = "***";
 const API_URL = "https://youtube.googleapis.com/youtube/v3/commentThreads?part=snippet";
 
-const App = () => {
+const App = (props) => {
   const [name, setName] = useState("");
   const [url, setUrl] = useState("");
   const [keywords, setKeywords] = useState([]);
   const [videoID, setVideoID] = useState("");
   const [winnerAmount, setWinnerAmount] = useState("");
   const [reserveWinnerAmount, setReserveWinnerAmount] = useState("");
-  const [winners, setWinners] = useState([]);
-  const [reserveWinners, setReserveWinners] = useState([]);
   const [userCondition, setUserCondition] = useState(false);
   const [commentCondition, setCommentCondition] = useState(false);
-  const [showModal, setShowModal] = useState(false);
+
+  const toggleModal = props.toggleModal;
+  const getWinners = props.getWinners;
+  const getReserveWinners = props.getReserveWinners;
+
+  console.log(props.test)
 
   const chooseWinners = (competitors) => {
     const winners = [];
@@ -54,8 +57,8 @@ const App = () => {
     reserves.forEach((id) => {
       reservesInfo.push(competitors.find((item) => item.uid === id));
     });
-    setWinners(winnersInfo);
-    setReserveWinners(reservesInfo);
+    getWinners(winnersInfo);
+    getReserveWinners(reservesInfo);
   };
 
   const chooseCompetitors = (allComments) => {
@@ -103,8 +106,6 @@ const App = () => {
       console.error(error);
     }
   }
-
-  const toggleModal = () => setShowModal(!showModal);
 
   return (
     <Box
@@ -257,125 +258,16 @@ const App = () => {
             </form>
           </Paper>
 
-            {showModal ? (
-              <Modal>
-          <Box
-          sx={{maxWidth:"100vw", minHeight:"100vh", bgcolor:"#78909c", 
-        zIndex:10, position:"absolute", left:0, right:0, top:0, 
-        justifyContent:"center", alignContent:"center", display:"flex", py:3, }}
-          >
-            <Paper
-            elevation="24"
-            sx={{width:"50%", m:"auto", p:2  }}
-            >
-            <Fab
-            sx={{color:"red",  bgcolor:"white", float:"right", zIndex:"10",
-            height:"20px", width:"35px", fontSize:15, textAlign:"center" }}
-            onClick={()=> toggleModal()}>X</Fab>
-              <List>
-                <Typography
-                variant="h4"
-                sx={{color:"#ffd600", textAlign:"center", m:"auto", width:"50%" }}
-                >WINNERS</Typography>
-                <Divider variant="inset" component="li" />
-                
-                {winners.map((winner, order) => {
-                  const rank = order + 1;
-                  const name = winner.name;
-                  const avatar = winner.avatar;
-                  const url = winner.url;
-                  const text = winner.text;
-                  const key = order;
-
-                  return (
-                    <ListItem
-                      alignItems="flex-start"
-                      button
-                      component="a"
-                      href={url}
-                      key={key}
-                    >
-                      <ListItemAvatar>
-                        <Avatar alt={name} src={avatar} />
-                      </ListItemAvatar>
-                      <ListItemText
-                        primary={` #${rank} ${name} `}
-                        secondary={
-                          <React.Fragment>
-                            <Typography
-                              sx={{ display: "inline" }}
-                              component="span"
-                              variant="body2"
-                              color="text.primary"
-                            >
-                              {name}
-                            </Typography>
-                            {` — ${text}`}
-                          </React.Fragment>
-                        }
-                      ></ListItemText>
-                    </ListItem>
-                  );
-                })}
-                
-              </List>
-            
-
-            
-              <List>
-              <Typography
-                variant="h4"
-                sx={{color:"#b0bec5", textAlign:"center", }}
-                >RESERVE WINNERS
-                </Typography>
-                <Divider variant="inset" component="li" />
-                
-                {reserveWinners.map((winner, order) => {
-                  const rank = order + 1;
-                  const name = winner.name;
-                  const avatar = winner.avatar;
-                  const url = winner.url;
-                  const text = winner.text;
-                  const key = order;
-
-                  return (
-                    <ListItem
-                      alignItems="flex-start"
-                      button
-                      component="a"
-                      href={url}
-                      key={key}
-                    >
-                      <ListItemAvatar>
-                        <Avatar alt={name} src={avatar} />
-                      </ListItemAvatar>
-                      <ListItemText
-                        primary={` #${rank} ${name} `}
-                        secondary={
-                          <React.Fragment>
-                            <Typography
-                              sx={{ display: "inline" }}
-                              component="span"
-                              variant="body2"
-                              color="text.primary"
-                            >
-                              {name}
-                            </Typography>
-                            {` — ${text}`}
-                          </React.Fragment>
-                        }
-                      ></ListItemText>
-                    </ListItem>
-                  );
-                })}
-              </List>
-              </Paper>
-          </Box>
-          </Modal>  
-            ) : null}
+            <Winners/>
         
     </Box>
   );
 };
 
-export default App;
+const mapStateToProps = state => {
+  return {
+    test: state.test
+  }
+}
+
+export default connect(mapStateToProps, {getWinners, getReserveWinners, toggleModal} )(App);
