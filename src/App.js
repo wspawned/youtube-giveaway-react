@@ -6,7 +6,7 @@ import { connect } from "react-redux";
 import { getWinners, getReserveWinners, toggleModal } from "./actions";
 import { Box } from "@mui/material";
 
-const API_KEY = "***";
+const API_KEY = "AIzaSyD-oBOzU1XmuxjfEAbfVOAkw8b3-JImr4Y";
 const API_URL = "https://youtube.googleapis.com/youtube/v3/commentThreads?part=snippet";
 
 const App = (props) => {
