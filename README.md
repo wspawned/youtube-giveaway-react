@@ -1,6 +1,7 @@
 # Youtube Giveaway Comment Picker
-Project is not deployed because I want to keep my API key secret.<br>
-Here is GIF instead;
+[Deployed project link](https://main.d35xdvm7o1rlbw.amplifyapp.com/)
+<br>
+
 
 ![preview](https://raw.githubusercontent.com/wspawned/youtube-giveaway-react/main/preview.gif)
 
