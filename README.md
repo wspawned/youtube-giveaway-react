@@ -2,6 +2,10 @@
 [Deployed project link](https://main.d35xdvm7o1rlbw.amplifyapp.com/)
 <br>
 
+- Developed a React app for selecting winners and reserve winners from YouTube video comments
+- App allows to choose specific keywords for user comments and provides spamming prevention
+- Utilized: YouTube Data API, Redux, Material UI, Axios
+
 
 ![preview](https://raw.githubusercontent.com/wspawned/youtube-giveaway-react/main/preview.gif)
 
